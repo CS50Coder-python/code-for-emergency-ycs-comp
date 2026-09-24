@@ -1,0 +1,242 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  --peat: #161310;
+  --peat-2: #1f1b16;
+  --bone: #efe7d6;
+  --tape: #f4c430;
+  --ice: #5eead4;
+  --ember: #e11d74;
+  --ash: #9a9084;
+}
+
+@theme inline {
+  --color-peat: var(--peat);
+  --color-peat-2: var(--peat-2);
+  --color-bone: var(--bone);
+  --color-tape: var(--tape);
+  --color-ice: var(--ice);
+  --color-ember: var(--ember);
+  --color-ash: var(--ash);
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), ui-serif, Georgia, serif;
+  --font-display: var(--font-display), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+}
+
+html,
+body {
+  background: var(--peat);
+  color: var(--bone);
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.tape-band {
+  background: repeating-linear-gradient(-45deg, #f4c430, #f4c430 12px, #ead028 12px, #ead028 24px);
+}
+
+/* ---------- map ---------- */
+
+.leaflet-container {
+  background: #161310;
+  font-family: var(--font-sans);
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #efe7d6;
+  color: #161310;
+  border-radius: 0;
+}
+
+.leaflet-tooltip.iso-label,
+.leaflet-tooltip.rally-label {
+  background: rgba(22, 19, 16, 0.88);
+  color: #efe7d6;
+  border: 1px solid rgba(239, 231, 214, 0.2);
+  border-radius: 0;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  box-shadow: none;
+}
+
+.leaflet-tooltip.rally-label {
+  border-color: #f4c430;
+  color: #f4c430;
+  font-weight: 600;
+}
+
+.leaflet-tooltip.iso-label::before,
+.leaflet-tooltip.rally-label::before {
+  display: none;
+}
+
+.member-pin {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 2px solid #efe7d6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  transition:
+    background-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.member-pin--burn {
+  animation: burn 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes burn {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.18);
+  }
+}
+
+.ember-flow {
+  animation: flow 2.4s linear infinite;
+}
+
+@keyframes flow {
+  from {
+    stroke-dashoffset: 36;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.front-pulse {
+  animation: front 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes front {
+  from {
+    fill-opacity: 0.22;
+  }
+  to {
+    fill-opacity: 0.38;
+  }
+}
+
+/* ---------- tape scrubber ---------- */
+
+.tape-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: linear-gradient(to right, #f4c430, #e11d74);
+  outline: none;
+}
+
+.tape-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 22px;
+  background: #efe7d6;
+  border: 2px solid #161310;
+  cursor: pointer;
+}
+
+.tape-range::-moz-range-thumb {
+  width: 14px;
+  height: 22px;
+  background: #efe7d6;
+  border: 2px solid #161310;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+/* ---------- landing sketch ---------- */
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 420;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.draw {
+  stroke-dasharray: 420;
+  animation: draw 1.8s ease forwards;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 0.7s ease both;
+}
+
+.rise-2 {
+  animation-delay: 0.15s;
+}
+
+.rise-3 {
+  animation-delay: 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draw,
+  .rise,
+  .ember-flow,
+  .front-pulse,
+  .member-pin--burn {
+    animation: none;
+    stroke-dasharray: none;
+  }
+}
+
+/* ---------- print ---------- */
+
+@media print {
+  body {
+    background: #fff;
+  }
+  .fridge {
+    background: #fff !important;
+    color: #000 !important;
+    padding: 0 !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--tape);
+  outline-offset: 3px;
+}
