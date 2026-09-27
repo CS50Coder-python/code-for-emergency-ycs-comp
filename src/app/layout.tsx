@@ -1,59 +1,26 @@
-import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, Newsreader, Oswald, Outfit } from "next/font/google";
+import type { Metadata } from "next";
+import { Inter, Newsreader } from "next/font/google";
+import { SITE } from "@/lib/site";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import "./globals.css";
 
-const display = Oswald({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
-
-const body = Outfit({
-  variable: "--font-body",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const serif = Newsreader({
-  variable: "--font-serif",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-
-const mono = IBM_Plex_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
-});
+const serif = Newsreader({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-serif" });
+const sans = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Rally — Household huddle for wildfire",
-  description:
-    "Don't wait for each other. Rally draws a live evacuation play: one rally lot, pickup chains, a go-window against the wind, and a neighbor mesh for whoever no car can reach.",
-  applicationName: "Rally",
-  keywords: ["wildfire", "evacuation", "household", "reunion", "emergency", "Young Coders Sphere"],
-  openGraph: {
-    title: "Rally — Don't wait for each other.",
-    description:
-      "A huddle engine for wildfire: NASA hotspots, live wind, real roads, and a solver that picks the one lot where the whole household can meet.",
-    type: "website",
-  },
-  appleWebApp: { capable: true, title: "Rally", statusBarStyle: "black-translucent" },
+  title: `${SITE.name}: ${SITE.tagline}`,
+  description: SITE.description,
 };
 
-export const viewport: Viewport = {
-  themeColor: "#161310",
-  width: "device-width",
-  initialScale: 1,
-};
-
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${display.variable} ${body.variable} ${serif.variable} ${mono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full">{children}</body>
+    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
+      <body>
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }

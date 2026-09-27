@@ -1,83 +1,73 @@
-# Rally
+# Hearth
 
-Wildfire apps show the fire. **Rally draws the play.**
+Check your home against live fire data.
 
-People don't die in wildfires because they missed the alert. They die because a family waits in the driveway for someone who is still at school, or drives back up the canyon for grandma. Rally is a **huddle engine**: it treats evacuation like a coach diagram. Every person is a player, the wind is the defense, one rally lot is the huddle, and every car runs a pickup chain.
+Enter an address. Hearth pulls every NASA satellite heat detection within 50 km from the last 24 hours, current wind and humidity, and official National Weather Service warnings, scores the risk in plain English, and builds a checklist for that house and the people in it.
 
-Built for Young Coders Sphere · Code for Emergency. SDG 11 (cities), 13 (climate), 3 (health).
+Built for Young Coders Sphere, Code for Emergency 2026.
 
-**Zero keys required.** The Palisades demo, live weather, NWS alerts, OpenStreetMap places and OSRM road routing all run on free public APIs.
+**Prompt:** How can we use technology to make emergency preparedness and response faster, more accurate, and more equitable for everyone?
 
-## What it does
+- **Faster.** One address, one click, a brief in seconds. No waiting for a county-wide alert.
+- **More accurate.** Scored for the exact address, not the whole county. Uses the direction the wind is blowing from to tell whether the fire is upwind.
+- **More equitable.** The checklist changes for households with no car, with children or older adults, with medical equipment, or with pets. Free, no account, works on any phone, printable, and can be copied as a text message.
 
-| Feature | What happens |
-| --- | --- |
-| **Arrival field** | NASA FIRMS hotspots + Open-Meteo wind feed a Rothermel-style anisotropic spread model. Rings on the map show when the front reaches every door and every candidate lot. |
-| **Pickup chains** | Drivers collect riders (kid at school, grandma at home, the neighbor with no car) in the order the fire dictates. OSRM times each leg on real roads. A rider whose door burns before any car can arrive is flagged **stranded**. |
-| **Rally solver** | Every candidate lot is scored by *slack*: front arrival minus the slowest member's arrival, with penalties for hot lots and stranded people. The winner is the lot with the most slack for the slowest person, not the closest one. The "Why this lot" table shows every loser's verdict; click a row to force a lot. |
-| **Run the tape** | Scrub the next 90 minutes. The front grows, every person moves along their route, riders wait at the door until their car arrives, and the scorecard says who makes it and by how many minutes. |
-| **Neighbor mesh** | Volunteers with empty seats claim the stranded. The claimed car joins the solver as a driver and the play re-draws. In the demo, Rosa is unreachable by the household sedan until Dev at the San Vicente hub claims her. |
-| **Anywhere on Earth** | Use your location or search a town. Rally stages a red-flag drill on today's wind direction, OpenStreetMap supplies schools, lots and fire stations as candidates, NWS alerts filter to the exact point. |
-| **Your household** | Add, edit, drag and place people. Set roles, mobility minutes and needs. Persisted locally, shareable as one link, printable as a fridge card, installable as a PWA. |
-| **Pulses & voice** | GO / AT RALLY / NEED RIDE texts (Twilio when keyed, simulated otherwise) and a coach voice that reads the play aloud. |
-| **Household plan** | Rules engine always; OpenAI or Anthropic rewrite when keyed. |
+**UN Goals:** 3 (Good health and well-being), 9 (Industry, innovation, and infrastructure), 11 (Sustainable cities and communities).
 
-## Run locally
+## Run it
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). `npm test` runs 31 checks on the pure simulation core (spread field, isochrones, pickup chains, tape, share links, live scenarios).
+Open http://localhost:3000. No API keys are needed. Everything runs on free public data.
 
-## The scoring, in one screen
-
-```
-slack    = arrival(front, lot) − max(arrival(member, lot))
-score    = slack − 22·threat(lot) + 6·[civic or lot] − 30·stranded
-chain    = driver → nearest urgent door → … → lot
-stranded = no car reaches the door 3 minutes before the front
-```
-
-Rate of spread: `ROS = 2.2 · (1 + 0.2·U^1.12) · e^(−2.1·RH)` km/h at the head, 45% on the flanks, 18% backing. FRP boosts speed; 8 minutes of spotting are subtracted.
-
-## Optional keys
-
-Copy `.env.example` to `.env.local`:
-
-| Key | What it unlocks |
-| --- | --- |
-| `FIRMS_MAP_KEY` | NASA FIRMS VIIRS hotspots for live scenarios |
-| `TWILIO_*` | Real SMS pulses (a trial account is enough) |
-| `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` | Model-written play text (`ANTHROPIC_MODEL` defaults to `claude-opus-5`) |
-| `NWS_USER_AGENT` | Set to an email you control; NWS and Nominatim ask for one |
-
-The Palisades scene always uses its scripted Santa Ana night (38 km/h, RH 12%) so the demo is reproducible. Live scenarios use live wind direction and gusts, floored to red-flag conditions so a drill is always a drill.
-
-## Deploy (judges click a link)
+## Deploy (so judges can click a link)
 
 1. Push to GitHub.
-2. Import in [Vercel](https://vercel.com/new). Framework: Next.js. No env vars needed.
-3. Share the production URL. `/play` is the huddle, `/mesh` is the volunteer view, `/card` prints.
+2. Go to https://vercel.com/new and import the repo. Framework: Next.js. No environment variables needed.
+3. Share the URL.
 
-## Judge walkthrough (90 seconds)
+## How the risk score works
 
-1. Open `/play`. Read the go window and the rationale: Maya collects Leon, then Samir. Rosa is stranded.
-2. Press **Run the tape**. Watch the front swallow Rosa's street while the sedan reaches the civic lot.
-3. Open `/mesh`. Claim Dev's SUV. The play re-draws: Dev collects Rosa, everyone meets.
-4. Type any town in the search box. Rally stages a drill on live wind with real OSM lots.
-5. Press **Edit**, drag a person, add one more. Press **Share huddle**. Open **Fridge card**.
+`src/lib/risk.ts`. Points are added for each factor, capped at 100.
 
-## Stack
+| Factor | Points |
+| --- | --- |
+| Nearest heat detection under 5 km / 15 km / 30 km / 50 km | 50 / 35 / 20 / 8 |
+| Two or more detections within 25 km | 3 each, up to 15 |
+| A detection within 30 km on the side the wind is blowing from | 15 |
+| Gusts over 40 km/h / 25 km/h | 15 / 8 |
+| Humidity under 15% / 25% | 15 / 8 |
+| NWS evacuation order / Red Flag Warning / Fire Weather Watch | 40 / 20 / 10 |
 
-Next.js 16 · React 19 · Tailwind 4 · Leaflet · Open-Meteo · NWS · NASA FIRMS · OpenStreetMap (Nominatim, Overpass) · OSRM · Esri dark canvas tiles · Twilio · OpenAI / Anthropic
+Level: 70+ Extreme, 45+ High, 20+ Moderate, otherwise Low.
 
-## Layout
+## Where to edit things
 
-```
-src/lib        pure simulation core (spread, chains, solver, tape, share, scenario)
-src/app/api    thin fetchers with demo fallbacks (fires, weather, alerts, places, geocode, huddle, plan, sms)
-src/hooks      useHuddle: one state machine for the playboard
-src/components map, tape deck, roster, mesh, plan, landing, fridge card
-```
+| Want to change | File |
+| --- | --- |
+| Site name, tagline, description | `src/lib/site.ts` |
+| Colours and fonts | `src/app/globals.css` (top of file) |
+| Landing page text | `src/app/page.tsx` |
+| The address checker page | `src/app/check/page.tsx` |
+| Risk scoring rules | `src/lib/risk.ts` |
+| Checklist wording and household questions | `src/lib/checklist.ts` and the checkboxes in `src/app/check/page.tsx` |
+| Map look | `src/components/FireMap.tsx` |
+| Data fetching (NASA, weather, alerts, geocoding) | `src/lib/firms.ts` and `src/app/api/brief/route.ts` |
+
+## Data sources
+
+- NASA FIRMS, VIIRS active fire CSV, last 24 hours: https://firms.modaps.eosdis.nasa.gov/active_fire/
+- Open-Meteo current weather: https://open-meteo.com/
+- National Weather Service alerts (US only): https://api.weather.gov/
+- OpenStreetMap Nominatim geocoding: https://nominatim.org/
+
+## Demo script (for the video)
+
+1. Open the home page. Point at the live feed: every satellite heat detection in the US from the last 24 hours.
+2. Click **Check my address**. Type an address near an active fire (look at the map for a cluster of orange dots). Tick "No car" and "Medical equipment".
+3. Read the risk level and the reasons. Show the nearest detection distance and the wind direction.
+4. Scroll to the checklist. Point out the ride and battery items that only appear because of the boxes ticked.
+5. Click **Copy as text message** and paste it into a note, then click **Print**.
