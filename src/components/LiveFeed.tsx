@@ -29,6 +29,15 @@ export default function LiveFeed() {
       </div>
       <div className="map">
         <FireMap center={[38.5, -97]} zoom={4} hotspots={hotspots ?? []} />
+        <div className="map-legend" aria-label="Map legend">
+          <div className="map-legend-title">Satellite heat detections</div>
+          <p>VIIRS thermal anomalies from the last 24 hours. Not confirmed wildfires. Larger dots are hotter.</p>
+          <ul>
+            <li><span className="swatch swatch-lg" aria-hidden="true" />Over 50 MW</li>
+            <li><span className="swatch swatch-md" aria-hidden="true" />10 to 50 MW</li>
+            <li><span className="swatch swatch-sm" aria-hidden="true" />Under 10 MW</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
