@@ -15,6 +15,42 @@ export type Hotspot = {
   bearing: number; // from the queried point
 };
 
+export type FireCluster = { id: string; name: string; lat: number; lon: number; count: number; distanceKm: number; bearing: number; heading: number | null; spreadHours: { low: number; high: number } | null; hotspots: Hotspot[] };
+
+// Single-link distance clustering; 5 km joins nearby satellite detections.
+export function clusterFires(hotspots: Hotspot[], weather: { windKmh: number; windFromDeg: number; humidity: number } | null, origin: { lat: number; lon: number }): FireCluster[] {
+  const unseen = new Set(hotspots.map((_, i) => i));
+  const groups: Hotspot[][] = [];
+  while (unseen.size) {
+    const first = unseen.values().next().value as number;
+    unseen.delete(first); const group = [hotspots[first]]; const queue = [hotspots[first]];
+    while (queue.length) {
+      const point = queue.pop()!;
+      for (const i of [...unseen]) if (distanceKm(point.lat, point.lon, hotspots[i].lat, hotspots[i].lon) <= 5) {
+        unseen.delete(i); group.push(hotspots[i]); queue.push(hotspots[i]);
+      }
+    }
+    groups.push(group);
+  }
+  return groups.map((points, i) => {
+    const lat = points.reduce((s, p) => s + p.lat, 0) / points.length;
+    const lon = points.reduce((s, p) => s + p.lon, 0) / points.length;
+    // Principal axis of hotspot spread, oriented downwind. Sparse clusters have no reliable axis.
+    let heading: number | null = null;
+    if (points.length >= 3) {
+      const xx = points.reduce((s,p)=>s+(p.lon-lon)**2,0), yy = points.reduce((s,p)=>s+(p.lat-lat)**2,0), xy = points.reduce((s,p)=>s+(p.lon-lon)*(p.lat-lat),0);
+      const axis = (Math.atan2(2*xy, xx-yy) * 90 / Math.PI + 360) % 180;
+      const windTo = weather ? (weather.windFromDeg + 180) % 360 : axis;
+      heading = weather ? (axis * 0.35 + windTo * 0.65) % 360 : axis;
+    } else if (weather) heading = (weather.windFromDeg + 180) % 360;
+    const dist = distanceKm(origin.lat, origin.lon, lat, lon), bearing = bearingDeg(origin.lat, origin.lon, lat, lon);
+    // Heuristic perimeter spread: 0.15 km/h baseline, increased by wind and dryness.
+    const rate = weather ? Math.max(0.08, 0.15 + weather.windKmh * 0.012 + (40-weather.humidity) * 0.004) : 0.2;
+    const hours = Math.max(0, dist - 1) / rate;
+    return { id: `fire-${i+1}`, name: `Fire ${String.fromCharCode(65 + (i % 26))}`, lat, lon, count: points.length, distanceKm: dist, bearing, heading, spreadHours: Number.isFinite(hours) ? { low: Math.max(0, hours * 0.5), high: hours * 2 } : null, hotspots: points };
+  }).sort((a,b)=>a.distanceKm-b.distanceKm);
+}
+
 type Region = { file: string; box: [number, number, number, number] }; // south, north, west, east
 
 const REGIONS: Region[] = [

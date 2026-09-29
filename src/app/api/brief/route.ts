@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { hotspotsNear } from "@/lib/firms";
 import { scoreRisk, type Alert, type Weather } from "@/lib/risk";
 import { BRIEF_RADIUS_KM } from "@/lib/site";
+import { clusterFires } from "@/lib/firms";
+import { destination, distanceKm, bearingDeg } from "@/lib/geo";
 
 // GET /api/brief?q=123 Main St, Town   or   /api/brief?lat=34&lon=-118
 // One call: geocode, satellite hotspots, live weather, official alerts, risk score.
@@ -30,10 +32,40 @@ export async function GET(req: NextRequest) {
       getAlerts(lat, lon),
     ]);
     const risk = scoreRisk(hotspots, weather, alerts);
+    const fires = clusterFires(hotspots, weather, { lat, lon });
+    const nearestFire = fires[0];
+    const arrival = nearestFire?.spreadHours && weather ? { ...nearestFire.spreadHours, label: `about ${Math.max(1, Math.round((nearestFire.spreadHours.low + nearestFire.spreadHours.high) / 2))} hours`, confidence: "Very uncertain: simplified wind and humidity model; terrain, fuel, suppression, and changing weather are not modeled." } : null;
+    let route = null;
+    if (nearestFire) {
+      try {
+        // Continue past the cluster in the home-to-fire direction to reach the far side.
+        const beyond = bearingDeg(lat, lon, nearestFire.lat, nearestFire.lon);
+        const target = destination(nearestFire.lat, nearestFire.lon, beyond, 20);
+        let destinationName = "a point beyond the nearest fire";
+        try {
+          const townRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${target.lat}&lon=${target.lon}&zoom=10&addressdetails=1`, { headers: { "User-Agent": UA }, cache: "no-store" });
+          if (townRes.ok) {
+            const town = await townRes.json();
+            const address = town.address ?? {};
+            destinationName = address.city ?? address.town ?? address.village ?? address.municipality ?? destinationName;
+          }
+        } catch { /* Keep the coordinate target if reverse lookup is unavailable. */ }
+        const url = `https://router.project-osrm.org/route/v1/driving/${lon},${lat};${target.lon},${target.lat}?overview=full&geometries=geojson`;
+        const rr = await fetch(url, { cache: "no-store" });
+        if (rr.ok) {
+          const data = await rr.json(); const coords = data.routes?.[0]?.geometry?.coordinates ?? [];
+          const near = coords.some((c: number[]) => fires.some(f => distanceKm(c[1], c[0], f.lat, f.lon) < 3));
+          route = { coordinates: coords.map((c: number[]) => [c[1], c[0]]), risky: near, destination: destinationName };
+        }
+      } catch { /* Routing is a best-effort planning aid. */ }
+    }
 
     return NextResponse.json({
       place: { name, lat, lon },
       hotspots: hotspots.slice(0, 200),
+      fires,
+      arrival,
+      route,
       weather,
       alerts,
       risk,

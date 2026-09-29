@@ -52,6 +52,7 @@ section { padding: 56px 0; }
 .nav a { text-decoration: none; font-size: 14px; padding: 8px 12px; border-radius: 6px; color: var(--muted); }
 .nav a:hover { background: #eeece5; color: var(--ink); }
 .nav a.primary { border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+.menu-toggle { display: none; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 7px 11px; font: inherit; }
 
 /* Buttons and form controls */
 .btn {
@@ -90,7 +91,7 @@ input[type="text"]:focus { outline: 2px solid var(--go); outline-offset: 1px; bo
 .map-head h3 { margin: 0 0 8px; }
 .map { height: 440px; background: #111; position: relative; }
 .map .leaflet-container { height: 100%; width: 100%; background: #111; font-family: var(--sans); }
-.map-legend {
+.map-legend { 
   position: absolute;
   left: 12px;
   bottom: 28px;
@@ -103,6 +104,19 @@ input[type="text"]:focus { outline: 2px solid var(--go); outline-offset: 1px; bo
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
   pointer-events: none;
 }
+.active-fires { padding: 18px 22px; border-top: 1px solid var(--line); }
+.active-fires h3 { margin-bottom: 4px; }
+.active-fire { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); text-decoration: none; font-size: 14px; }
+.active-fire:hover { color: var(--ember); }
+.suggestions { position: absolute; z-index: 10; width: min(100%, 480px); background: white; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 24px #0002; }
+.suggestions button { display: block; width: 100%; text-align: left; border: 0; background: transparent; padding: 9px 12px; cursor: pointer; }
+.suggestions button:hover { background: #f2f0e9; }
+.risk-track { height: 10px; max-width: 420px; border-radius: 10px; background: #e7e5de; overflow: hidden; margin: 12px 0 16px; }
+.risk-track span { display: block; height: 100%; border-radius: inherit; background: var(--low); }
+.risk-track span.Moderate { background: var(--moderate); }.risk-track span.High { background: var(--high); }.risk-track span.Extreme { background: var(--extreme); }
+.arrival { margin: 18px 0; padding: 14px 16px; border-left: 4px solid var(--ember); background: #fff3ec; border-radius: 4px; }
+.arrival span, .fire-line { font-size: 14px; color: var(--muted); }
+.route-warning { padding: 10px 12px; color: #8a201c; background: #fff0ed; border-radius: 5px; }
 .map-legend-title { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 6px; }
 .map-legend p { margin: 0 0 10px; font-size: 11px; line-height: 1.4; color: #c8c5bb; }
 .map-legend ul { list-style: none; margin: 0; padding: 0; }
@@ -144,7 +158,10 @@ ul.plain li { margin-bottom: 6px; }
 @media (max-width: 800px) {
   .grid-3, .grid-2 { grid-template-columns: 1fr; }
   .stats { grid-template-columns: 1fr 1fr; }
-  .nav a:not(.primary) { display: none; }
+  .header .container { position: relative; }
+  .menu-toggle { display: block; }
+  .nav { display: none; position: absolute; top: 58px; right: 20px; z-index: 1000; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; box-shadow: 0 8px 24px #0002; align-items: stretch; flex-direction: column; }
+  .nav.nav-open { display: flex; }
   .map { height: 340px; }
   .map-legend { max-width: 180px; left: 8px; bottom: 24px; padding: 10px 12px; }
   .hero { padding: 48px 0 24px; }

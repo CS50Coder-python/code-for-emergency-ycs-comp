@@ -29,6 +29,13 @@ export function angleBetween(a: number, b: number) {
   return d > 180 ? 360 - d : d;
 }
 
+export function destination(lat: number, lon: number, bearing: number, km: number) {
+  const d = km / R, b = toRad(bearing), p = toRad(lat), l = toRad(lon);
+  const p2 = Math.asin(Math.sin(p) * Math.cos(d) + Math.cos(p) * Math.sin(d) * Math.cos(b));
+  const l2 = l + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(p), Math.cos(d) - Math.sin(p) * Math.sin(p2));
+  return { lat: toDeg(p2), lon: ((toDeg(l2) + 540) % 360) - 180 };
+}
+
 function toRad(d: number) {
   return (d * Math.PI) / 180;
 }
