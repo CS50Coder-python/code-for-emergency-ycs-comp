@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LiveFeed from "@/components/LiveFeed";
+import ActiveFires from "@/components/ActiveFires";
 import { SITE } from "@/lib/site";
 
 export default function Home() {
@@ -23,7 +24,18 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="how" className="band">
+      <section id="fires" className="band">
+        <div className="container">
+          <h2>Active fires right now</h2>
+          <div className="rule" />
+          <p className="muted" style={{ maxWidth: 640 }}>
+            The largest clusters of satellite detections in the United States from the last 24 hours. Pick one to see the brief a house next to it would get. A few clusters are industrial heat such as steel mills or gas flares, not wildfire; the satellite cannot tell them apart.
+          </p>
+          <ActiveFires />
+        </div>
+      </section>
+
+      <section id="how">
         <div className="container">
           <h2>How it works</h2>
           <div className="rule" />
@@ -36,18 +48,18 @@ export default function Home() {
             <div className="card">
               <div className="step">Step 2</div>
               <h3>Get a live risk brief</h3>
-              <p>We pull every satellite heat detection within 50 km from the last 24 hours, current wind and humidity, and official warnings, then score them in plain English.</p>
+              <p>Satellite detections within 50 km are grouped into fires. With the wind and humidity we score the risk, say which way each fire is being pushed, and estimate how long the nearest one needs to reach the door.</p>
             </div>
             <div className="card">
               <div className="step">Step 3</div>
-              <h3>Follow a checklist for that house</h3>
-              <p>Not generic advice. A family with no car is told to arrange a ride before roads close. Someone on oxygen is told to pack a battery. Print it or text it.</p>
+              <h3>Get a way out and a checklist</h3>
+              <p>Roads out in eight directions are checked against the fire. The safe one is drawn in green, the fastest one in red if it runs past the fire. The checklist changes for a family with no car, a person on oxygen, or pets. Read it in English or Spanish, print it, or text it.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="data">
+      <section id="data" className="band">
         <div className="container grid-2">
           <div>
             <h2>The data behind every brief</h2>
@@ -61,17 +73,21 @@ export default function Home() {
             </div>
             <div className="card" style={{ marginBottom: 12 }}>
               <h3>Open-Meteo</h3>
-              <p>Current wind speed, gusts, direction, and relative humidity. We use these to tell whether a fire is upwind of the house and whether the air is dry enough to carry embers.</p>
+              <p>Current wind speed, gusts, direction, and relative humidity. These drive the upwind check and the spread estimate.</p>
+            </div>
+            <div className="card" style={{ marginBottom: 12 }}>
+              <h3>OSRM and OpenStreetMap</h3>
+              <p>Real driving routes on real roads, and address lookup for any place in the world.</p>
             </div>
             <div className="card">
-              <h3>National Weather Service and OpenStreetMap</h3>
-              <p>Active Red Flag Warnings and evacuation notices for the exact point, and address lookup for any place in the world.</p>
+              <h3>National Weather Service</h3>
+              <p>Active Red Flag Warnings and evacuation notices for the exact point. United States only; the rest of the brief works everywhere.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="goals" className="band">
+      <section id="goals">
         <div className="container">
           <h2>Faster, more accurate, more equitable</h2>
           <div className="rule" />
@@ -82,17 +98,17 @@ export default function Home() {
             <div className="card">
               <div className="step">SDG 3</div>
               <h3>Good health and well-being</h3>
-              <p>Most wildfire deaths and injuries come from leaving late. The brief gives a clear go signal and the checklist covers smoke masks, medication, and medical equipment so evacuation does not become a health emergency.</p>
+              <p>Most wildfire deaths and injuries come from leaving late or down the wrong road. The brief gives a time window, a route, and a checklist that covers smoke masks, medication, and medical equipment.</p>
             </div>
             <div className="card">
               <div className="step">SDG 9</div>
               <h3>Industry, innovation, and infrastructure</h3>
-              <p>Satellite and weather infrastructure already exists. We turn it into a household tool in seconds, with no paid services, so any city or school can host it.</p>
+              <p>Satellite, weather, and road infrastructure already exists. We turn it into a household tool in seconds, with no paid services, so any city or school can host it.</p>
             </div>
             <div className="card">
               <div className="step">SDG 11</div>
               <h3>Sustainable cities and communities</h3>
-              <p>County-wide alerts treat every home the same. Scoring each address and each household means the people who need the most time get the earliest, clearest instruction.</p>
+              <p>County-wide alerts treat every home the same. Scoring each address and each household, in two languages, means the people who need the most time get the earliest, clearest instruction.</p>
             </div>
           </div>
           <div className="row" style={{ marginTop: 28 }}>
