@@ -88,8 +88,20 @@ input[type="text"]:focus { outline: 2px solid var(--go); outline-offset: 1px; bo
 .map-frame { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 .map-head { padding: 18px 22px 12px; text-align: center; }
 .map-head h3 { margin: 0 0 8px; }
-.map { height: 440px; background: #111; }
+.map { height: 440px; background: #111; position: relative; }
 .map .leaflet-container { height: 100%; width: 100%; background: #111; font-family: var(--sans); }
+
+/* Legend overlaid on the landing-page map */
+.map-legend { position: absolute; left: 12px; bottom: 28px; z-index: 500; max-width: 240px; padding: 12px 14px; border-radius: 8px; background: rgba(22, 22, 20, 0.88); color: #f4f2ec; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35); pointer-events: none; }
+.map-legend-title { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 6px; }
+.map-legend p { margin: 0 0 10px; font-size: 11px; line-height: 1.4; color: #c8c5bb; }
+.map-legend ul { list-style: none; margin: 0; padding: 0; }
+.map-legend li { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; }
+.map-legend li:last-child { margin-bottom: 0; }
+.swatch { display: inline-block; border-radius: 50%; background: #ff5a1f; border: 1px solid #ff7a3d; flex: none; }
+.swatch-sm { width: 8px; height: 8px; }
+.swatch-md { width: 10px; height: 10px; }
+.swatch-lg { width: 14px; height: 14px; }
 
 /* Results */
 .level { font-family: var(--serif); font-size: 44px; line-height: 1; margin: 6px 0 4px; }
@@ -176,6 +188,7 @@ ul.plain li { margin-bottom: 6px; }
   .nav a { padding: 12px; font-size: 16px; }
   .nav a.primary { margin-top: 6px; text-align: center; }
   .map { height: 340px; }
+  .map-legend { max-width: 180px; left: 8px; bottom: 24px; padding: 10px 12px; }
   .hero { padding: 48px 0 24px; }
 }
 
